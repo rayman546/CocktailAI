@@ -9,11 +9,10 @@ from drf_spectacular.utils import extend_schema
 
 # Import viewsets
 from .views import (
-    UserViewSet, UserPreferencesViewSet, CategoryViewSet, 
+    UserViewSet, CategoryViewSet, 
     SupplierViewSet, LocationViewSet, ProductViewSet,
     InventoryItemViewSet, InventoryTransactionViewSet,
     InventoryCountViewSet, OrderViewSet,
-    UserPreferencesAPIView,
     InventoryCountItemAPIView,
     APIDocs
 )
@@ -23,7 +22,6 @@ router = DefaultRouter()
 
 # User management
 router.register('users', UserViewSet)
-router.register('user-preferences', UserPreferencesViewSet)
 
 # Inventory base models
 router.register('categories', CategoryViewSet)
@@ -65,9 +63,6 @@ urlpatterns = [
     path('token/', token_obtain_pair, name='token_obtain_pair'),
     path('token/refresh/', token_refresh, name='token_refresh'),
     path('token/verify/', token_verify, name='token_verify'),
-    
-    # User preferences
-    path('users/<int:user_id>/preferences/', UserPreferencesAPIView.as_view(), name='user-preferences'),
     
     # Inventory count items
     path('inventory-counts/<int:count_id>/items/', InventoryCountItemAPIView.as_view(), name='inventory-count-items'),

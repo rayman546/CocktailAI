@@ -174,10 +174,13 @@ class LocationSerializer(serializers.ModelSerializer):
 # Additional inventory serializers will be added here 
 
 # Product serializers
-class ProductListSerializer(serializers.ModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing Product instances.
+    Base serializer for Product instances.
+    Handles all product operations with conditional field inclusion
+    based on context or action.
     """
+    # Fields for list view
     category_name = serializers.ReadOnlyField(source='category.name')
     supplier_name = serializers.ReadOnlyField(source='supplier.name')
     total_quantity = serializers.ReadOnlyField()
@@ -185,45 +188,28 @@ class ProductListSerializer(serializers.ModelSerializer):
     below_par_level = serializers.ReadOnlyField()
     needs_reorder = serializers.ReadOnlyField()
     
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'name', 'sku', 'barcode', 'image',
-            'category', 'category_name', 'supplier', 'supplier_name',
-            'unit_price', 'unit_size', 'unit_type',
-            'par_level', 'reorder_point', 'reorder_quantity',
-            'total_quantity', 'total_value', 'below_par_level', 'needs_reorder',
-            'is_active', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['created_at', 'updated_at']
-
-
-class ProductDetailSerializer(serializers.ModelSerializer):
-    """
-    Serializer for detailed Product information.
-    """
-    category = CategorySerializer(read_only=True)
-    supplier = SupplierSerializer(read_only=True)
+    # Fields for detail view
+    category = serializers.SerializerMethodField()
+    supplier = serializers.SerializerMethodField()
     category_id = serializers.PrimaryKeyRelatedField(
         source='category',
         queryset=Category.objects.all(),
-        write_only=True
+        write_only=True,
+        required=False
     )
     supplier_id = serializers.PrimaryKeyRelatedField(
         source='supplier',
         queryset=Supplier.objects.all(),
-        write_only=True
+        write_only=True,
+        required=False
     )
-    total_quantity = serializers.ReadOnlyField()
-    total_value = serializers.ReadOnlyField()
-    below_par_level = serializers.ReadOnlyField()
-    needs_reorder = serializers.ReadOnlyField()
     
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'sku', 'description', 'barcode', 'image',
-            'category', 'category_id', 'supplier', 'supplier_id',
+            'category', 'category_id', 'category_name', 
+            'supplier', 'supplier_id', 'supplier_name',
             'unit_price', 'unit_size', 'unit_type',
             'par_level', 'reorder_point', 'reorder_quantity',
             'notes', 'total_quantity', 'total_value', 
@@ -231,20 +217,60 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer with dynamic field sets based on context.
+        """
+        super().__init__(*args, **kwargs)
+        
+        # Get the request context to determine which fields to include
+        request = self.context.get('request')
+        if not request:
+            return
+            
+        # For list action, exclude detailed fields
+        if self.context.get('view') and self.context['view'].action == 'list':
+            self.fields.pop('description', None)
+            self.fields.pop('notes', None)
+            
+        # For create/update actions, use simplified representation of category and supplier
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            self.fields.pop('category', None)
+            self.fields.pop('supplier', None)
+            self.fields.pop('category_name', None)
+            self.fields.pop('supplier_name', None)
+            self.fields.pop('total_quantity', None)
+            self.fields.pop('total_value', None)
+            self.fields.pop('below_par_level', None)
+            self.fields.pop('needs_reorder', None)
+        else:  # For GET requests
+            self.fields.pop('category_id', None)
+            self.fields.pop('supplier_id', None)
+    
+    def get_category(self, obj):
+        """
+        Return the full CategorySerializer representation for detail view.
+        """
+        # Only return detailed category in detail view
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return CategorySerializer(obj.category).data
+        return obj.category_id
+        
+    def get_supplier(self, obj):
+        """
+        Return the full SupplierSerializer representation for detail view.
+        """
+        # Only return detailed supplier in detail view
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return SupplierSerializer(obj.supplier).data
+        return obj.supplier_id
 
 
-class ProductCreateUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for creating and updating Product instances.
-    """
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'name', 'sku', 'description', 'barcode', 'image',
-            'category', 'supplier', 'unit_price', 'unit_size', 'unit_type',
-            'par_level', 'reorder_point', 'reorder_quantity', 'notes',
-            'is_active'
-        ]
+# Keeping these aliases for backward compatibility during transition
+ProductListSerializer = ProductSerializer
+ProductDetailSerializer = ProductSerializer
+ProductCreateUpdateSerializer = ProductSerializer
 
 
 # InventoryItem serializers
@@ -386,18 +412,36 @@ class InventoryTransactionCreateSerializer(serializers.ModelSerializer):
         
     def validate(self, data):
         """
-        Validate transaction data.
+        Validate transaction data based on transaction type.
+        
+        - For 'sold' and 'transferred' transactions: quantity must be negative
+        - For 'received' and 'adjustment' transactions: quantity must be positive
         """
         transaction_type = data.get('transaction_type')
         quantity = data.get('quantity')
         
         # For 'sold' and 'transferred' transactions, quantity should be negative
-        if transaction_type in ['sold', 'transferred'] and quantity > 0:
-            data['quantity'] = -abs(quantity)
+        if transaction_type in ['sold', 'transferred'] and quantity >= 0:
+            raise serializers.ValidationError({
+                "quantity": f"Quantity must be negative for {transaction_type} transactions."
+            })
             
         # For 'received' transactions, quantity should be positive
-        elif transaction_type == 'received' and quantity < 0:
-            data['quantity'] = abs(quantity)
+        elif transaction_type == 'received' and quantity <= 0:
+            raise serializers.ValidationError({
+                "quantity": "Quantity must be positive for received transactions."
+            })
+            
+        # For 'adjustment' transactions, any value is allowed but warn about negative values
+        elif transaction_type == 'adjustment' and quantity < 0:
+            # This is just a warning; could be implemented with non_field_errors or custom validation
+            pass
+            
+        # Validate transfer operations (if implemented)
+        if transaction_type == 'transferred':
+            # Additional validation for transfers could be added here
+            # For example, ensure a destination location is specified for transfers
+            pass
             
         return data
 

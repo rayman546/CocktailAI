@@ -37,7 +37,7 @@ from .serializers import (
 # Import custom permissions
 from .permissions import (
     IsStaffOrReadOnly, IsOwnerOrStaffOrReadOnly, IsAdminOrReadOnly, 
-    IsOwnerOrStaff, IsAuthenticatedForMethods
+    IsOwnerOrStaff, IsAuthenticatedForMethods, IsInventoryCountParticipant, IsOrderParticipant
 )
 # Import utilities
 from .utils import paginate_queryset, create_error_response
@@ -132,6 +132,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def preferences(self, request, pk=None):
         """
         Retrieve or update user preferences.
+        
+        This endpoint handles all preference operations that were previously
+        split between UserViewSet and UserPreferencesViewSet.
+        
+        Staff users can access any user's preferences, while regular users
+        can only access their own.
         """
         user = self.get_object()
         
@@ -143,25 +149,39 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         
         # Update preferences
-        serializer = UserPreferencesSerializer(preferences, data=request.data, partial=True)
+        serializer = UserPreferencesSerializer(preferences, data=request.data, partial=request.method == 'PATCH')
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserPreferencesViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint for managing user preferences.
-    
-    This viewset is only for admin use. Regular users should 
-    use the /users/{id}/preferences/ endpoint instead.
-    """
-    queryset = UserPreferences.objects.all()
-    serializer_class = UserPreferencesSerializer
-    permission_classes = [IsAdminUser]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['items_per_page', 'default_view']
+        
+    @action(detail=False, methods=['get'], url_path='all-preferences')
+    def all_preferences(self, request):
+        """
+        List all user preferences (admin only).
+        
+        This endpoint replaces the list functionality of the removed UserPreferencesViewSet.
+        """
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "You do not have permission to perform this action."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        queryset = UserPreferences.objects.all()
+        
+        # Apply filtering
+        filter_backends = [DjangoFilterBackend]
+        for backend in list(filter_backends):
+            queryset = backend().filter_queryset(request, queryset, self)
+            
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = UserPreferencesSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+            
+        serializer = UserPreferencesSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @extend_schema_view(
@@ -634,7 +654,7 @@ class InventoryCountViewSet(viewsets.ModelViewSet):
     and reconciled with the system records.
     """
     queryset = InventoryCount.objects.all()
-    permission_classes = [IsOwnerOrStaffOrReadOnly]
+    permission_classes = [IsInventoryCountParticipant]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = InventoryCountFilter
     search_fields = ['name', 'location__name', 'notes']
@@ -706,7 +726,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     Orders represent purchasing requests to suppliers for restocking inventory.
     """
     queryset = Order.objects.all()
-    permission_classes = [IsOwnerOrStaffOrReadOnly]
+    permission_classes = [IsOrderParticipant]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = OrderFilter
     search_fields = ['supplier__name', 'notes', 'reference_number']

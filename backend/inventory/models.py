@@ -285,10 +285,21 @@ class InventoryTransaction(BaseModel):
         related_name="transactions",
         verbose_name=_("Location")
     )
+    destination_location = models.ForeignKey(
+        Location,
+        on_delete=models.PROTECT,
+        related_name="incoming_transactions",
+        verbose_name=_("Destination Location"),
+        null=True,
+        blank=True,
+        help_text=_("For transfers, the location where the product is being moved to")
+    )
     quantity = models.DecimalField(
         _("Quantity"),
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        help_text=_("For transfers and sales, use negative values")
     )
     unit_price = models.DecimalField(
         _("Unit Price"),
@@ -318,7 +329,29 @@ class InventoryTransaction(BaseModel):
     @property
     def total_value(self):
         """Calculate the total value of this transaction."""
-        return abs(self.quantity) * self.unit_price 
+        return abs(self.quantity) * self.unit_price
+    
+    def clean(self):
+        """
+        Validate transaction data based on type.
+        """
+        from django.core.exceptions import ValidationError
+        
+        # Ensure destination_location is set for transfers
+        if self.transaction_type == "transferred" and not self.destination_location:
+            raise ValidationError({"destination_location": _("Destination location is required for transfers.")})
+            
+        # Ensure destination_location is not the same as source location
+        if self.transaction_type == "transferred" and self.destination_location == self.location:
+            raise ValidationError({"destination_location": _("Destination location must be different from source location.")})
+            
+        # Ensure quantity is negative for sold and transferred transactions
+        if self.transaction_type in ["sold", "transferred"] and self.quantity >= 0:
+            raise ValidationError({"quantity": _(f"Quantity must be negative for {self.get_transaction_type_display()} transactions.")})
+            
+        # Ensure quantity is positive for received transactions
+        if self.transaction_type == "received" and self.quantity <= 0:
+            raise ValidationError({"quantity": _("Quantity must be positive for received transactions.")})
 
 
 class InventoryCount(BaseModel):

@@ -30,6 +30,8 @@ class IsOwnerOrStaffOrReadOnly(permissions.BasePermission):
     Permission to allow owners or staff to modify objects.
     Non-authenticated users have no access.
     Authenticated non-owner, non-staff users have read-only access.
+    
+    Standardized to check created_by field for ownership.
     """
     
     def has_permission(self, request, view):
@@ -57,15 +59,16 @@ class IsOwnerOrStaffOrReadOnly(permissions.BasePermission):
         if request.user.is_staff:
             return True
             
-        # Check if the object has an owner field
-        if hasattr(obj, 'owner'):
-            return obj.owner == request.user
-        elif hasattr(obj, 'created_by'):
+        # Standardized ownership check - prioritize created_by
+        if hasattr(obj, 'created_by'):
             return obj.created_by == request.user
-        elif hasattr(obj, 'user'):
-            return obj.user == request.user
+        # Fallback to other ownership fields if created_by doesn't exist
         elif hasattr(obj, 'performed_by'):
             return obj.performed_by == request.user
+        elif hasattr(obj, 'user'):
+            return obj.user == request.user
+        elif hasattr(obj, 'owner'):
+            return obj.owner == request.user
             
         # If no ownership field found, deny permission
         return False
@@ -95,6 +98,8 @@ class IsOwnerOrStaff(permissions.BasePermission):
     """
     Permission to allow only owners or staff access.
     Objects are completely restricted from non-owners or non-staff.
+    
+    Standardized to check created_by field for ownership.
     """
     
     def has_permission(self, request, view):
@@ -106,17 +111,90 @@ class IsOwnerOrStaff(permissions.BasePermission):
         if request.user.is_staff:
             return True
             
-        # Check if the object has an owner field
-        if hasattr(obj, 'owner'):
-            return obj.owner == request.user
-        elif hasattr(obj, 'created_by'):
+        # Standardized ownership check - prioritize created_by
+        if hasattr(obj, 'created_by'):
             return obj.created_by == request.user
-        elif hasattr(obj, 'user'):
-            return obj.user == request.user
+        # Fallback to other ownership fields if created_by doesn't exist
         elif hasattr(obj, 'performed_by'):
             return obj.performed_by == request.user
+        elif hasattr(obj, 'user'):
+            return obj.user == request.user
+        elif hasattr(obj, 'owner'):
+            return obj.owner == request.user
             
         # If no ownership field found, deny permission
+        return False
+
+
+class IsInventoryCountParticipant(permissions.BasePermission):
+    """
+    Permission for inventory count participants.
+    
+    Allows:
+    - Staff to do anything
+    - Created_by user to do anything
+    - Completed_by user to update only when status is in_progress
+    - Others with read-only access if authenticated
+    """
+    
+    def has_permission(self, request, view):
+        # Authenticate the user
+        return request.user and request.user.is_authenticated
+    
+    def has_object_permission(self, request, view, obj):
+        # Allow GET, HEAD, OPTIONS requests for authenticated users
+        if request.method in permissions.SAFE_METHODS:
+            return True
+            
+        # Staff can do anything
+        if request.user.is_staff:
+            return True
+            
+        # Creator can do anything
+        if obj.created_by == request.user:
+            return True
+            
+        # Assigned counter can only update when in progress
+        if obj.completed_by == request.user and obj.status == 'in_progress':
+            if request.method in ['PUT', 'PATCH']:
+                return True
+                
+        return False
+
+
+class IsOrderParticipant(permissions.BasePermission):
+    """
+    Permission for order participants.
+    
+    Allows:
+    - Staff to do anything
+    - Created_by user to do anything
+    - Updated_by user to update only when status is not cancelled
+    - Others with read-only access if authenticated
+    """
+    
+    def has_permission(self, request, view):
+        # Authenticate the user
+        return request.user and request.user.is_authenticated
+    
+    def has_object_permission(self, request, view, obj):
+        # Allow GET, HEAD, OPTIONS requests for authenticated users
+        if request.method in permissions.SAFE_METHODS:
+            return True
+            
+        # Staff can do anything
+        if request.user.is_staff:
+            return True
+            
+        # Creator can do anything
+        if obj.created_by == request.user:
+            return True
+            
+        # Assigned updater can only modify when not cancelled
+        if obj.updated_by == request.user and obj.status != 'cancelled':
+            if request.method in ['PUT', 'PATCH']:
+                return True
+                
         return False
 
 
