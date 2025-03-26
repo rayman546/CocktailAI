@@ -1,0 +1,80 @@
+[
+  {
+    "model": "inventory.location",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Main Bar",
+      "description": "Front-of-house main service bar",
+      "is_storage": false,
+      "is_service": true
+    }
+  },
+  {
+    "model": "inventory.location",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Service Bar",
+      "description": "Back-of-house service bar for table orders",
+      "is_storage": false,
+      "is_service": true
+    }
+  },
+  {
+    "model": "inventory.location",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Liquor Room",
+      "description": "Main storage area for spirits and liqueurs",
+      "is_storage": true,
+      "is_service": false
+    }
+  },
+  {
+    "model": "inventory.location",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Wine Cellar",
+      "description": "Temperature-controlled storage for wine",
+      "is_storage": true,
+      "is_service": false
+    }
+  },
+  {
+    "model": "inventory.location",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Keg Room",
+      "description": "Refrigerated storage for kegs and bottled beer",
+      "is_storage": true,
+      "is_service": false
+    }
+  },
+  {
+    "model": "inventory.location",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Dry Storage",
+      "description": "Storage for dry goods, garnishes, and non-perishable items",
+      "is_storage": true,
+      "is_service": false
+    }
+  }
+] 

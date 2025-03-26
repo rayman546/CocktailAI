@@ -1,0 +1,82 @@
+[
+  {
+    "model": "inventory.supplier",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Premium Spirits Distributors",
+      "contact_name": "John Smith",
+      "email": "john@premiumspirits.example.com",
+      "phone": "555-123-4567",
+      "address": "123 Distribution Way, Liquor City, LC 12345",
+      "website": "https://www.premiumspirits.example.com",
+      "notes": "Primary distributor for spirits and liqueurs"
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Vineyard Direct Imports",
+      "contact_name": "Emily Parker",
+      "email": "emily@vineyarddirect.example.com",
+      "phone": "555-234-5678",
+      "address": "456 Wine Avenue, Grape Valley, GV 23456",
+      "website": "https://www.vineyarddirect.example.com",
+      "notes": "Specialty wine distributor with direct vineyard relationships"
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Craft Beer Collective",
+      "contact_name": "Michael Johnson",
+      "email": "mike@craftbeer.example.com",
+      "phone": "555-345-6789",
+      "address": "789 Brewery Road, Hopville, HV 34567",
+      "website": "https://www.craftbeercollective.example.com",
+      "notes": "Local craft beer distributor with specialty microbrews"
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Bar Essentials Supply Co.",
+      "contact_name": "Sarah Williams",
+      "email": "sarah@baressentials.example.com",
+      "phone": "555-456-7890",
+      "address": "321 Supply Street, Mixtown, MT 45678",
+      "website": "https://www.baressentialssupply.example.com",
+      "notes": "One-stop shop for mixers, syrups, garnishes, and bar supplies"
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Pro Bartender Equipment",
+      "contact_name": "David Chen",
+      "email": "david@probartender.example.com",
+      "phone": "555-567-8901",
+      "address": "654 Tool Lane, Equipment City, EC 56789",
+      "website": "https://www.probartenderequipment.example.com",
+      "notes": "Premium bar tools, glassware, and equipment supplier"
+    }
+  }
+] 

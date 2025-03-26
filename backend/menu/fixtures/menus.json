@@ -1,0 +1,167 @@
+[
+  {
+    "model": "menu.menu",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Main Cocktail Menu",
+      "description": "Our standard cocktail offerings",
+      "start_date": "2023-01-01",
+      "end_date": null,
+      "is_seasonal": false,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "menu.menu",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Happy Hour Menu",
+      "description": "Special discounted offerings available during happy hour",
+      "start_date": "2023-01-01",
+      "end_date": null,
+      "is_seasonal": false,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "menu.menu",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Summer Specials",
+      "description": "Seasonal cocktails perfect for warm weather",
+      "start_date": "2023-06-01",
+      "end_date": "2023-09-30",
+      "is_seasonal": true,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 1,
+      "recipe": 1,
+      "price": "12.00",
+      "display_order": 1,
+      "is_featured": true,
+      "description_override": ""
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 1,
+      "recipe": 2,
+      "price": "10.00",
+      "display_order": 2,
+      "is_featured": false,
+      "description_override": ""
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 1,
+      "recipe": 3,
+      "price": "11.00",
+      "display_order": 3,
+      "is_featured": false,
+      "description_override": ""
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 1,
+      "recipe": 4,
+      "price": "11.00",
+      "display_order": 4,
+      "is_featured": false,
+      "description_override": ""
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 1,
+      "recipe": 5,
+      "price": "10.00",
+      "display_order": 5,
+      "is_featured": true,
+      "description_override": "Our signature Moscow Mule served in a frosty copper mug."
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 2,
+      "recipe": 2,
+      "price": "7.00",
+      "display_order": 1,
+      "is_featured": true,
+      "description_override": "Happy hour special price!"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 7,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 2,
+      "recipe": 3,
+      "price": "8.00",
+      "display_order": 2,
+      "is_featured": true,
+      "description_override": "Happy hour special price!"
+    }
+  },
+  {
+    "model": "menu.menuitem",
+    "pk": 8,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "menu": 3,
+      "recipe": 4,
+      "price": "10.00",
+      "display_order": 1,
+      "is_featured": true,
+      "description_override": "The perfect summer refresher!"
+    }
+  }
+] 

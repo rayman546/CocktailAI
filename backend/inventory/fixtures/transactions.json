@@ -1,0 +1,227 @@
+[
+  {
+    "model": "inventory.transaction",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-15T09:00:00Z",
+      "updated_at": "2023-01-15T09:00:00Z",
+      "is_active": true,
+      "type": "purchase",
+      "status": "completed",
+      "reference_number": "PO-2023-001",
+      "transaction_date": "2023-01-15",
+      "notes": "Initial stock purchase",
+      "created_by": 1
+    }
+  },
+  {
+    "model": "inventory.transaction",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "type": "transfer",
+      "status": "completed",
+      "reference_number": "TR-2023-001",
+      "transaction_date": "2023-01-15",
+      "notes": "Moving stock from storage to bar",
+      "created_by": 1
+    }
+  },
+  {
+    "model": "inventory.transaction",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-16T18:00:00Z",
+      "updated_at": "2023-01-16T18:00:00Z",
+      "is_active": true,
+      "type": "usage",
+      "status": "completed",
+      "reference_number": "US-2023-001",
+      "transaction_date": "2023-01-16",
+      "notes": "Daily usage report",
+      "created_by": 1
+    }
+  },
+  {
+    "model": "inventory.transaction",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-17T09:00:00Z",
+      "updated_at": "2023-01-17T09:00:00Z",
+      "is_active": true,
+      "type": "adjustment",
+      "status": "completed",
+      "reference_number": "ADJ-2023-001",
+      "transaction_date": "2023-01-17",
+      "notes": "Inventory count adjustment",
+      "created_by": 1
+    }
+  },
+  {
+    "model": "inventory.transaction",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-20T11:00:00Z",
+      "updated_at": "2023-01-20T11:00:00Z",
+      "is_active": true,
+      "type": "purchase",
+      "status": "completed",
+      "reference_number": "PO-2023-002",
+      "transaction_date": "2023-01-20",
+      "notes": "Weekly restocking order",
+      "created_by": 1
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-15T09:00:00Z",
+      "updated_at": "2023-01-15T09:00:00Z",
+      "is_active": true,
+      "transaction": 1,
+      "product": 1,
+      "quantity": "24.00",
+      "unit_price": "19.99",
+      "location": 3,
+      "notes": "Initial vodka stock"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-15T09:00:00Z",
+      "updated_at": "2023-01-15T09:00:00Z",
+      "is_active": true,
+      "transaction": 1,
+      "product": 2,
+      "quantity": "12.00",
+      "unit_price": "24.99",
+      "location": 3,
+      "notes": "Initial gin stock"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-15T09:00:00Z",
+      "updated_at": "2023-01-15T09:00:00Z",
+      "is_active": true,
+      "transaction": 1,
+      "product": 3,
+      "quantity": "12.00",
+      "unit_price": "29.99",
+      "location": 3,
+      "notes": "Initial bourbon stock"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "transaction": 2,
+      "product": 1,
+      "quantity": "6.00",
+      "unit_price": null,
+      "location": 1,
+      "notes": "Transfer vodka to main bar"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "transaction": 2,
+      "product": 2,
+      "quantity": "4.00",
+      "unit_price": null,
+      "location": 1,
+      "notes": "Transfer gin to main bar"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-16T18:00:00Z",
+      "updated_at": "2023-01-16T18:00:00Z",
+      "is_active": true,
+      "transaction": 3,
+      "product": 1,
+      "quantity": "-1.50",
+      "unit_price": null,
+      "location": 1,
+      "notes": "Daily vodka usage"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 7,
+    "fields": {
+      "created_at": "2023-01-16T18:00:00Z",
+      "updated_at": "2023-01-16T18:00:00Z",
+      "is_active": true,
+      "transaction": 3,
+      "product": 2,
+      "quantity": "-0.75",
+      "unit_price": null,
+      "location": 1,
+      "notes": "Daily gin usage"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 8,
+    "fields": {
+      "created_at": "2023-01-17T09:00:00Z",
+      "updated_at": "2023-01-17T09:00:00Z",
+      "is_active": true,
+      "transaction": 4,
+      "product": 1,
+      "quantity": "0.25",
+      "unit_price": null,
+      "location": 1,
+      "notes": "Adjustment after inventory count"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 9,
+    "fields": {
+      "created_at": "2023-01-20T11:00:00Z",
+      "updated_at": "2023-01-20T11:00:00Z",
+      "is_active": true,
+      "transaction": 5,
+      "product": 1,
+      "quantity": "6.00",
+      "unit_price": "19.99",
+      "location": 3,
+      "notes": "Weekly vodka restock"
+    }
+  },
+  {
+    "model": "inventory.transactionitem",
+    "pk": 10,
+    "fields": {
+      "created_at": "2023-01-20T11:00:00Z",
+      "updated_at": "2023-01-20T11:00:00Z",
+      "is_active": true,
+      "transaction": 5,
+      "product": 8,
+      "quantity": "2.00",
+      "unit_price": "36.99",
+      "location": 6,
+      "notes": "Tonic water restock"
+    }
+  }
+] 

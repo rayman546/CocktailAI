@@ -1,0 +1,253 @@
+"""
+Documentation module for the CocktailAI API.
+
+This module contains documentation about API features, including filtering, sorting, and pagination.
+These docs are designed to be included in the Swagger/OpenAPI documentation.
+"""
+
+from drf_spectacular.utils import extend_schema_field, extend_schema_serializer, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import serializers
+
+# Filtering Documentation
+
+FILTERING_DOCS = """
+# Filtering
+
+The CocktailAI API supports advanced filtering capabilities across all endpoints. 
+Filters can be applied as query parameters to narrow down results.
+
+## Basic Filtering
+
+Basic filtering can be done by providing exact match parameters:
+
+```
+/api/products/?category=1&is_active=true
+```
+
+## Advanced Filtering
+
+Many endpoints support advanced filtering options:
+
+### Range Filters
+
+Range filters allow filtering by numeric ranges:
+
+```
+/api/products/?min_price=10&max_price=50
+/api/inventory-items/?min_quantity=5&max_quantity=100
+```
+
+### Date Filters
+
+Date filters allow filtering by date ranges:
+
+```
+/api/orders/?created_after=2023-01-01&created_before=2023-12-31
+/api/inventory-transactions/?created_after=2023-01-01T00:00:00Z
+```
+
+### Text Search
+
+A global text search is available on all endpoints using the `search` parameter:
+
+```
+/api/products/?search=vodka
+/api/suppliers/?search=acme
+```
+
+This performs a case-insensitive search across multiple relevant fields.
+
+### Relationship Filters
+
+You can filter by related object fields:
+
+```
+/api/products/?category_name=spirits
+/api/inventory-items/?product_name=vodka
+```
+
+### Boolean Filters
+
+Some endpoints support boolean filters for special conditions:
+
+```
+/api/categories/?has_products=true
+/api/suppliers/?has_orders=false
+```
+
+## Operators
+
+The following operators are supported for field lookups:
+
+- Exact match: `field=value`
+- Contains (case-insensitive): `field__icontains=value`
+- Greater than or equal: `field__gte=value`
+- Less than or equal: `field__lte=value`
+- In list: `field__in=value1,value2,value3`
+- Is null: `field__isnull=true`
+
+Example:
+
+```
+/api/products/?name__icontains=vodka&unit_price__gte=20
+```
+"""
+
+# Sorting Documentation
+
+SORTING_DOCS = """
+# Sorting
+
+All list endpoints support sorting through the `ordering` parameter.
+
+## Basic Sorting
+
+To sort by a field in ascending order:
+
+```
+/api/products/?ordering=name
+```
+
+## Reverse Sorting
+
+To sort in descending order, prefix the field with a dash (`-`):
+
+```
+/api/products/?ordering=-created_at
+```
+
+## Multiple Sort Fields
+
+You can sort by multiple fields by separating them with commas:
+
+```
+/api/products/?ordering=category__name,-unit_price
+```
+
+This sorts by category name (ascending), then by unit price (descending).
+
+## Available Sort Fields
+
+Each endpoint defines which fields can be used for sorting via the `ordering_fields` parameter.
+Common sortable fields include:
+
+- `name`: Sort by name
+- `created_at`: Sort by creation date
+- `updated_at`: Sort by last update date
+- `price`/`unit_price`: Sort by price (where applicable)
+- `quantity`: Sort by quantity (where applicable)
+
+Additional fields may be available for specific endpoints.
+"""
+
+# Pagination Documentation
+
+PAGINATION_DOCS = """
+# Pagination
+
+All list endpoints in the CocktailAI API are paginated by default.
+
+## Default Pagination
+
+By default, endpoints return 20 items per page.
+
+## Page-Based Pagination
+
+The API uses page-based pagination with the following query parameters:
+
+- `page`: The page number (1-based indexing)
+- `page_size`: Number of items per page (max 100)
+
+Example:
+
+```
+/api/products/?page=2&page_size=50
+```
+
+## Pagination Response Format
+
+Paginated responses include the following metadata:
+
+```json
+{
+  "count": 100,           // Total number of items
+  "next": "http://...",   // URL to the next page (null if none)
+  "previous": "http://...", // URL to the previous page (null if none)
+  "results": [...]        // Array of items for the current page
+}
+```
+
+## Nested Endpoints
+
+Nested resource endpoints (accessed via detail actions) use a smaller pagination
+size of 10 items per page by default.
+
+Examples of nested endpoints:
+
+```
+/api/products/{id}/inventory/
+/api/categories/{id}/products/
+/api/locations/{id}/inventory/
+```
+"""
+
+# Combined API Features Documentation
+
+API_FEATURES_DOCS = f"""
+# API Features
+
+The CocktailAI API provides a rich set of features for interacting with the data.
+
+{FILTERING_DOCS}
+
+{SORTING_DOCS}
+
+{PAGINATION_DOCS}
+"""
+
+# Schema extensions for documentation
+
+def get_api_features_example():
+    """
+    Get an example of API features for the OpenAPI schema.
+    """
+    return OpenApiExample(
+        name="api-features",
+        summary="API Features Documentation",
+        description=API_FEATURES_DOCS,
+        value={"message": "See description for full API features documentation"}
+    )
+
+def get_filtering_example():
+    """
+    Get an example of filtering capabilities for the OpenAPI schema.
+    """
+    return OpenApiExample(
+        name="filtering",
+        summary="Filtering Documentation",
+        description=FILTERING_DOCS,
+        value={"message": "See description for full filtering documentation"}
+    )
+
+def get_sorting_example():
+    """
+    Get an example of sorting capabilities for the OpenAPI schema.
+    """
+    return OpenApiExample(
+        name="sorting",
+        summary="Sorting Documentation",
+        description=SORTING_DOCS,
+        value={"message": "See description for full sorting documentation"}
+    )
+
+def get_pagination_example():
+    """
+    Get an example of pagination capabilities for the OpenAPI schema.
+    """
+    return OpenApiExample(
+        name="pagination",
+        summary="Pagination Documentation",
+        description=PAGINATION_DOCS,
+        value={"message": "See description for full pagination documentation"}
+    ) 

@@ -1,0 +1,99 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# CocktailAI Project Rules
+
+## Project Overview
+- Name: CocktailAI
+- Description: AI-powered beverage program optimization platform for bar inventory management
+- Purpose: Transform inventory management from accounting exercise to strategic profit-driving tool
+
+## Technology Stack
+- Backend: Django with Django REST Framework
+- Frontend: React with TypeScript
+- Database: PostgreSQL
+- Containerization: Docker with Docker Compose
+- Task Queue: Celery with Redis
+- UI Framework: Material UI
+- State Management: Redux Toolkit + React Query
+
+## Architecture Guidelines
+- Follow RESTful API design principles
+- Implement JWT authentication
+- Use Django's built-in ORM for database models
+- Adopt container-based deployment with Docker
+- Separate concerns between frontend and backend
+
+## Code Organization
+
+### Backend Structure
+- Django project name: `cocktailai_backend`
+- Apps organization:
+  - `accounts`: User authentication and profiles
+  - `inventory`: Inventory management core functionality
+  - `recipes`: Recipe management (future phase)
+  - `api`: REST API endpoints for frontend and mobile
+
+### Frontend Structure
+- React app with TypeScript and Vite
+- Organization:
+  - `components`: Reusable UI components
+  - `pages`: Route-specific page components
+  - `services`: API services and data fetching
+  - `store`: Redux state management
+  - `hooks`: Custom React hooks
+  - `utils`: Utility functions
+  - `types`: TypeScript type definitions
+
+## Database Schema
+
+### Core Models
+- User: Extended Django user model
+- Product: Bar products with categories and suppliers
+- Category: Product categorization 
+- Supplier: Vendor information
+- Location: Storage locations for inventory
+- InventoryItem: Products at specific locations with quantities
+- InventoryTransaction: Record of inventory movements
+- InventoryCount: Physical inventory counting sessions
+- Order: Purchase orders to suppliers
+
+### Future Models
+- Recipe: Beverage recipes with ingredients and costs
+- Menu: Collections of recipes for menu offerings
+
+## Development Workflow
+- Follow Agile development methodology
+- Use Git for version control
+- Implement responsive design for all screen sizes
+- Write unit tests for critical functionality
+- Document API endpoints with Swagger/OpenAPI
+
+## Implementation Phases
+1. **MVP (Phase 1)**: Core inventory management
+2. **Phase 2**: Recipe management and order processing
+3. **Phase 3**: Toast POS integration and mobile app
+4. **Phase 4**: Menu engineering and multi-location support
+
+## Coding Standards
+- Follow PEP 8 for Python code
+- Use ESLint and Prettier for JavaScript/TypeScript
+- Write meaningful comments and documentation
+- Follow Django's best practices for models and views
+- Use functional components and hooks for React
+- Implement proper error handling and validation
+
+## Security Guidelines
+- Store sensitive data in environment variables
+- Implement proper authentication and authorization
+- Validate all user inputs
+- Protect against common web vulnerabilities
+- Use HTTPS for all communications
+
+## Testing Requirements
+- Write unit tests for backend functionality
+- Implement component tests for frontend
+- Test critical user flows end-to-end
+- Validate API responses against expected schemas

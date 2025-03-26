@@ -1,0 +1,45 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$XnVgG5vUonK0ydSElTXVnq$hT5Hp6OoKIrUbKnXStVdIoNlreP7NYgZbHcFXS8OFxo=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "System",
+      "last_name": "Administrator",
+      "email": "admin@example.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2023-01-01T00:00:00Z",
+      "phone_number": "",
+      "position": "System Administrator",
+      "bio": "Default system administrator account",
+      "profile_image": "",
+      "notification_email": true,
+      "notification_sms": false,
+      "dark_mode": false,
+      "company_name": "CocktailAI",
+      "location": "",
+      "date_updated": "2023-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.userpreferences",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "items_per_page": 20,
+      "default_view": "list",
+      "low_stock_alerts": true,
+      "order_status_notifications": true,
+      "inventory_count_reminders": true,
+      "date_format": "MM/DD/YYYY",
+      "time_format": "12-hour",
+      "timezone": "UTC"
+    }
+  }
+] 

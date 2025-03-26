@@ -1,0 +1,122 @@
+[
+  {
+    "model": "inventory.category",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Spirits",
+      "description": "Distilled alcoholic beverages including vodka, gin, rum, whiskey, and tequila",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Wine",
+      "description": "Fermented grape beverages including red, white, sparkling, and rosé wines",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Beer",
+      "description": "Brewed beverages including lagers, ales, stouts, and IPAs",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Mixers",
+      "description": "Non-alcoholic beverages used for mixing drinks, such as sodas, tonic, and juices",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Syrups",
+      "description": "Sweeteners used in cocktails, including simple syrup, flavored syrups, and cordials",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Bitters",
+      "description": "Concentrated flavor extracts used as cocktail ingredients or garnishes",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 7,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Garnishes",
+      "description": "Edible decorations and flavor enhancers for drinks, such as fruit, herbs, and spices",
+      "parent": null
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 8,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Vodka",
+      "description": "Neutral grain spirits, typically 40% ABV",
+      "parent": 1
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 9,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Gin",
+      "description": "Juniper-flavored spirits",
+      "parent": 1
+    }
+  },
+  {
+    "model": "inventory.category",
+    "pk": 10,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Whiskey",
+      "description": "Grain-based aged spirits including bourbon, scotch, and rye",
+      "parent": 1
+    }
+  }
+] 

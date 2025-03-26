@@ -1,0 +1,98 @@
+[
+  {
+    "model": "menu.recipecategory",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Classic Cocktails",
+      "description": "Traditional cocktails with established recipes and histories",
+      "slug": "classic-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Signature Cocktails",
+      "description": "House specialties unique to our establishment",
+      "slug": "signature-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Whiskey Cocktails",
+      "description": "Cocktails featuring whiskey, bourbon, or rye as the primary spirit",
+      "slug": "whiskey-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Gin Cocktails",
+      "description": "Cocktails featuring gin as the primary spirit",
+      "slug": "gin-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Vodka Cocktails",
+      "description": "Cocktails featuring vodka as the primary spirit",
+      "slug": "vodka-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Rum Cocktails",
+      "description": "Cocktails featuring rum as the primary spirit",
+      "slug": "rum-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 7,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Tequila Cocktails",
+      "description": "Cocktails featuring tequila as the primary spirit",
+      "slug": "tequila-cocktails"
+    }
+  },
+  {
+    "model": "menu.recipecategory",
+    "pk": 8,
+    "fields": {
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z",
+      "is_active": true,
+      "name": "Non-Alcoholic",
+      "description": "Flavorful drinks without alcohol",
+      "slug": "non-alcoholic"
+    }
+  }
+] 

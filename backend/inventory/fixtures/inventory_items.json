@@ -1,0 +1,325 @@
+[
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 1,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 1,
+      "location": 1,
+      "quantity": "6.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar well vodka"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 1,
+      "location": 3,
+      "quantity": "18.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Liquor room backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 3,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 2,
+      "location": 1,
+      "quantity": "4.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar gin"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 4,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 2,
+      "location": 3,
+      "quantity": "8.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Liquor room backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 5,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 3,
+      "location": 1,
+      "quantity": "3.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar bourbon"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 6,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 3,
+      "location": 3,
+      "quantity": "10.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Liquor room backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 7,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 4,
+      "location": 1,
+      "quantity": "5.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar rum"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 8,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 4,
+      "location": 3,
+      "quantity": "12.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Liquor room backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 9,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 5,
+      "location": 1,
+      "quantity": "4.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar tequila"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 10,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 5,
+      "location": 3,
+      "quantity": "6.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Liquor room backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 11,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 6,
+      "location": 1,
+      "quantity": "6.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": "2023-12-31",
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar house white wine"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 12,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 6,
+      "location": 4,
+      "quantity": "24.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": "2023-12-31",
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Wine cellar backup stock"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 13,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 7,
+      "location": 1,
+      "quantity": "24.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": "2023-08-15",
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar refrigerator"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 14,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 7,
+      "location": 5,
+      "quantity": "36.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": "2023-08-15",
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Keg room refrigerator"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 15,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 8,
+      "location": 1,
+      "quantity": "12.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar tonic water"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 16,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 8,
+      "location": 6,
+      "quantity": "48.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Dry storage backup"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 17,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 9,
+      "location": 1,
+      "quantity": "2000.00",
+      "status": "in_stock",
+      "batch_number": "SYRUP-230115",
+      "expiry_date": "2023-01-22",
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar house-made simple syrup"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 18,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 10,
+      "location": 1,
+      "quantity": "3.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Main bar bitters"
+    }
+  },
+  {
+    "model": "inventory.inventoryitem",
+    "pk": 19,
+    "fields": {
+      "created_at": "2023-01-15T10:00:00Z",
+      "updated_at": "2023-01-15T10:00:00Z",
+      "is_active": true,
+      "product": 10,
+      "location": 6,
+      "quantity": "5.00",
+      "status": "in_stock",
+      "batch_number": "",
+      "expiry_date": null,
+      "last_counted": "2023-01-15T10:00:00Z",
+      "notes": "Dry storage backup"
+    }
+  }
+] 
