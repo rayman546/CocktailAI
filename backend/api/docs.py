@@ -9,6 +9,128 @@ from drf_spectacular.utils import extend_schema_field, extend_schema_serializer,
 from drf_spectacular.types import OpenApiTypes
 from rest_framework import serializers
 
+# Field Validation Documentation
+
+VALIDATION_DOCS = """
+# Field Validation
+
+The CocktailAI API implements robust field validation to ensure data integrity.
+This document outlines the validation rules applied to different field types.
+
+## Date Validation
+
+### No Future Dates
+
+Many date fields cannot accept dates in the future:
+
+- `order_date` in Order
+- `actual_delivery_date` in Order
+- `completed_date` in InventoryCount
+- `counted_at` in InventoryCountItem
+- `transaction_date` in InventoryTransaction
+
+Example error response:
+```json
+{
+  "order_date": ["2024-12-31 is in the future. This field cannot accept future dates."]
+}
+```
+
+### Date Sequence Validation
+
+Date fields that represent a sequence of events are validated to ensure logical order:
+
+- In Order model: `expected_delivery_date` and `actual_delivery_date` cannot be before `order_date`
+- In InventoryCount model: `scheduled_date` cannot be after `completed_date`
+
+Example error response:
+```json
+{
+  "expected_delivery_date": ["Expected delivery date cannot be before the order date."]
+}
+```
+
+## Contact Information Validation
+
+### Email Validation
+
+Email fields are validated for proper format:
+
+- `email` in Supplier model
+- `email` in User model
+
+Example error response:
+```json
+{
+  "email": ["invalid-email is not a valid email address."]
+}
+```
+
+### Phone Number Validation
+
+Phone numbers are validated for proper format and length:
+
+- `phone` in Supplier model
+- `phone_number` in User model
+
+Format accepts international codes, parentheses, spaces, and hyphens. Must have between 7-15 digits.
+
+Example error response:
+```json
+{
+  "phone": ["12345 is not a valid phone number. Must have between 7 and 15 digits."]
+}
+```
+
+## Numeric Value Validation
+
+### Currency/Price Validation
+
+All price and currency fields must be non-negative:
+
+- `unit_price` in Product model
+- `shipping_cost`, `tax`, `discount` in Order model
+- `unit_price` in OrderItem model
+
+Example error response:
+```json
+{
+  "unit_price": ["Value cannot be less than 0."]
+}
+```
+
+### Quantity Validation
+
+Quantity fields have specific validation rules:
+
+- Most quantity fields must be non-negative
+- For InventoryTransaction, the sign depends on transaction_type:
+  - Positive for 'received' transactions
+  - Negative for 'sold' and 'transferred' transactions
+
+Example error response:
+```json
+{
+  "quantity": ["Quantity must be negative for sold transactions."]
+}
+```
+
+## Transaction-Specific Validation
+
+InventoryTransaction model has specialized validation:
+
+- For 'transferred' transactions, destination_location is required
+- destination_location must be different from source location
+- Quantity sign must match transaction type (positive/negative)
+
+Example error response:
+```json
+{
+  "destination_location": ["Destination location is required for transfers."]
+}
+```
+"""
+
 # Filtering Documentation
 
 FILTERING_DOCS = """
@@ -204,6 +326,8 @@ The CocktailAI API provides a rich set of features for interacting with the data
 {SORTING_DOCS}
 
 {PAGINATION_DOCS}
+
+{VALIDATION_DOCS}
 """
 
 # Schema extensions for documentation
@@ -250,4 +374,15 @@ def get_pagination_example():
         summary="Pagination Documentation",
         description=PAGINATION_DOCS,
         value={"message": "See description for full pagination documentation"}
+    )
+
+def get_validation_example():
+    """
+    Get an example of field validation rules for the OpenAPI schema.
+    """
+    return OpenApiExample(
+        name="validation",
+        summary="Field Validation Documentation",
+        description=VALIDATION_DOCS,
+        value={"message": "See description for full validation documentation"}
     ) 

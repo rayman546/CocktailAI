@@ -6,7 +6,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.validators import MinValueValidator
+from .validators import no_future_date_validator, date_not_before_validator, date_before_today_validator
 import uuid
+from django.utils import timezone
 
 
 class BaseModel(models.Model):
@@ -47,12 +49,37 @@ class Category(BaseModel):
 class Supplier(BaseModel):
     """
     Supplier model for product vendors.
+    
+    This model represents companies or individuals that supply products to the business.
+    It stores contact information and related details about suppliers.
+    
+    Fields:
+        name (CharField): The name of the supplier (max length: 255 chars).
+        contact_name (CharField): Name of the primary contact person (optional, max length: 255 chars).
+        email (EmailField): Email address for the supplier/contact (optional, validated with email_validator).
+        phone (CharField): Phone number (optional, max length: 20 chars, validated with phone_number_validator).
+        address (TextField): Physical address of the supplier (optional).
+        website (URLField): Supplier's website URL (optional).
+        notes (TextField): Additional information about the supplier (optional).
+    
+    Validators:
+        - email: Must be a valid email format (email_validator)
+        - phone: Must be a valid phone number format (phone_number_validator)
     """
     
     name = models.CharField(_("Name"), max_length=255)
     contact_name = models.CharField(_("Contact Name"), max_length=255, blank=True)
-    email = models.EmailField(_("Email"), blank=True)
-    phone = models.CharField(_("Phone"), max_length=20, blank=True)
+    email = models.EmailField(
+        _("Email"), 
+        blank=True,
+        validators=[email_validator]
+    )
+    phone = models.CharField(
+        _("Phone"), 
+        max_length=20, 
+        blank=True,
+        validators=[phone_number_validator]
+    )
     address = models.TextField(_("Address"), blank=True)
     website = models.URLField(_("Website"), blank=True)
     notes = models.TextField(_("Notes"), blank=True)
@@ -92,6 +119,38 @@ class Location(BaseModel):
 class Product(BaseModel):
     """
     Product model for inventory items.
+    
+    This model represents inventory products that can be bought, sold, and tracked.
+    It includes information about pricing, classification, supplier, and inventory management.
+    
+    Fields:
+        name (CharField): The name of the product (max length: 255 chars).
+        sku (CharField): Stock Keeping Unit identifier (optional, max length: 50 chars).
+        description (TextField): Detailed description of the product (optional).
+        image (ImageField): Product image file (optional).
+        barcode (CharField): UPC/EAN barcode for the product (optional, max length: 100 chars).
+        category (ForeignKey): Product category reference.
+        supplier (ForeignKey): Supplier reference.
+        unit_price (DecimalField): Price per unit, validated to be non-negative.
+        unit_size (DecimalField): Size of the unit (e.g., 750ml for a standard wine bottle), must be positive.
+        unit_type (CharField): Type of unit (bottle, can, keg, etc.).
+        par_level (DecimalField): Target inventory level to maintain, must be non-negative.
+        reorder_point (DecimalField): Inventory level at which to reorder, must be non-negative.
+        reorder_quantity (DecimalField): Quantity to reorder when reorder_point is reached, must be positive.
+        notes (TextField): Additional information about the product (optional).
+    
+    Validators:
+        - unit_price: Must be non-negative (MinValueValidator and currency_validator)
+        - unit_size: Must be positive (MinValueValidator)
+        - par_level: Must be non-negative (MinValueValidator)
+        - reorder_point: Must be non-negative (MinValueValidator)
+        - reorder_quantity: Must be positive (MinValueValidator)
+    
+    Properties:
+        total_quantity: Sum of the product quantity across all locations.
+        total_value: Total inventory value of the product (quantity * unit_price).
+        below_par_level: Whether the total quantity is less than the par_level.
+        needs_reorder: Whether the total quantity is less than or equal to the reorder_point.
     """
     
     UNIT_TYPE_CHOICES = [
@@ -133,7 +192,7 @@ class Product(BaseModel):
         _("Unit Price"),
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0), currency_validator()]
     )
     
     # Inventory management
@@ -252,6 +311,33 @@ class InventoryItem(BaseModel):
 class InventoryTransaction(BaseModel):
     """
     InventoryTransaction model to track changes in inventory.
+    
+    This model records all inventory movements including receiving products,
+    selling products, transferring between locations, adjustments, and inventory counts.
+    
+    Fields:
+        transaction_id (UUIDField): Unique identifier for the transaction (auto-generated).
+        transaction_type (CharField): Type of transaction (received, sold, transferred, adjustment, count).
+        transaction_date (DateField): Date when the transaction occurred (defaults to now, cannot be in future).
+        product (ForeignKey): Reference to the product being transacted.
+        location (ForeignKey): Location where the transaction occurred (source location for transfers).
+        destination_location (ForeignKey): Destination location for transfer transactions (optional).
+        quantity (DecimalField): Quantity of product involved in the transaction 
+                              (positive for received/adjustment, negative for sold/transferred).
+        unit_price (DecimalField): Unit price at the time of transaction (must be non-negative).
+        reference (CharField): Reference number or identifier for the transaction (optional, max length: 100 chars).
+        performed_by (ForeignKey): User who performed the transaction.
+        notes (TextField): Additional information about the transaction (optional).
+    
+    Validators:
+        - quantity: Must be positive for 'received' transactions and negative for 'sold' and 'transferred' transactions.
+        - unit_price: Must be non-negative (MinValueValidator).
+        - transaction_date: Cannot be in the future (no_future_date_validator).
+    
+    Model-level validation:
+        - For 'transferred' transactions, destination_location is required.
+        - destination_location must be different from the source location for transfers.
+        - Appropriate quantity sign validation based on transaction_type.
     """
     
     TRANSACTION_TYPE_CHOICES = [
@@ -272,6 +358,12 @@ class InventoryTransaction(BaseModel):
         _("Transaction Type"),
         max_length=20,
         choices=TRANSACTION_TYPE_CHOICES
+    )
+    transaction_date = models.DateField(
+        _("Transaction Date"),
+        default=timezone.now,
+        validators=[no_future_date_validator],
+        help_text=_("Date when the transaction occurred")
     )
     product = models.ForeignKey(
         Product,
@@ -386,7 +478,12 @@ class InventoryCount(BaseModel):
         default="in_progress"
     )
     scheduled_date = models.DateField(_("Scheduled Date"), null=True, blank=True)
-    completed_date = models.DateTimeField(_("Completed Date"), null=True, blank=True)
+    completed_date = models.DateTimeField(
+        _("Completed Date"), 
+        null=True, 
+        blank=True,
+        validators=[no_future_date_validator]
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -428,6 +525,27 @@ class InventoryCount(BaseModel):
         if self.total_items == 0:
             return 0
         return int((self.completed_items / self.total_items) * 100)
+    
+    def clean(self):
+        """
+        Validate inventory count data.
+        """
+        from django.core.exceptions import ValidationError
+        
+        # If completed_date is provided, ensure it's not in the future
+        if self.completed_date:
+            no_future_date_validator(self.completed_date)
+        
+        # If scheduled_date and completed_date are both provided, ensure scheduled_date is not after completed_date
+        if self.scheduled_date and self.completed_date:
+            completed_date = self.completed_date
+            if isinstance(completed_date, datetime):
+                completed_date = completed_date.date()
+                
+            if self.scheduled_date > completed_date:
+                raise ValidationError({
+                    "scheduled_date": _("Scheduled date cannot be after completed date.")
+                })
 
 
 class InventoryCountItem(BaseModel):
@@ -471,7 +589,12 @@ class InventoryCountItem(BaseModel):
         null=True,
         blank=True
     )
-    counted_at = models.DateTimeField(_("Counted At"), null=True, blank=True)
+    counted_at = models.DateTimeField(
+        _("Counted At"), 
+        null=True, 
+        blank=True,
+        validators=[no_future_date_validator]
+    )
     notes = models.TextField(_("Notes"), blank=True)
     
     class Meta:
@@ -502,6 +625,40 @@ class InventoryCountItem(BaseModel):
 class Order(BaseModel):
     """
     Order model for purchase orders to suppliers.
+    
+    This model tracks orders placed to suppliers for inventory replenishment.
+    It includes order status, dates, financial information, and related order details.
+    
+    Fields:
+        order_number (CharField): Unique identifier for the order (max length: 50 chars).
+        supplier (ForeignKey): Reference to the supplier this order is placed with.
+        status (CharField): Current status of the order (draft, pending, placed, received, cancelled).
+        order_date (DateField): Date when the order was placed (optional, cannot be in the future).
+        expected_delivery_date (DateField): Expected date of delivery (optional).
+        actual_delivery_date (DateField): Date when the order was actually received (optional, cannot be in the future).
+        shipping_cost (DecimalField): Cost of shipping (optional, must be non-negative).
+        tax (DecimalField): Tax amount for the order (optional, must be non-negative).
+        discount (DecimalField): Discount amount for the order (optional, must be non-negative).
+        notes (TextField): Additional information about the order (optional).
+        created_by (ForeignKey): User who created the order.
+        updated_by (ForeignKey): User who last updated the order (optional).
+    
+    Validators:
+        - order_date: Cannot be in the future (no_future_date_validator)
+        - actual_delivery_date: Cannot be in the future (no_future_date_validator)
+        - shipping_cost: Must be non-negative (MinValueValidator and currency_validator)
+        - tax: Must be non-negative (MinValueValidator and currency_validator)
+        - discount: Must be non-negative (MinValueValidator and currency_validator)
+    
+    Model-level validation:
+        - If status is 'placed', order_date is required
+        - If status is 'received', actual_delivery_date is required
+        - expected_delivery_date cannot be before order_date
+        - actual_delivery_date cannot be before order_date
+    
+    Properties:
+        subtotal: Sum of all order items' total prices.
+        total: subtotal + shipping_cost + tax - discount.
     """
     
     STATUS_CHOICES = [
@@ -525,28 +682,38 @@ class Order(BaseModel):
         choices=STATUS_CHOICES,
         default="draft"
     )
-    order_date = models.DateField(_("Order Date"), null=True, blank=True)
+    order_date = models.DateField(
+        _("Order Date"), 
+        null=True, 
+        blank=True,
+        validators=[no_future_date_validator]
+    )
     expected_delivery_date = models.DateField(_("Expected Delivery Date"), null=True, blank=True)
-    actual_delivery_date = models.DateField(_("Actual Delivery Date"), null=True, blank=True)
+    actual_delivery_date = models.DateField(
+        _("Actual Delivery Date"), 
+        null=True, 
+        blank=True,
+        validators=[no_future_date_validator]
+    )
     shipping_cost = models.DecimalField(
         _("Shipping Cost"),
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(0), currency_validator()],
         default=0
     )
     tax = models.DecimalField(
         _("Tax"),
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(0), currency_validator()],
         default=0
     )
     discount = models.DecimalField(
         _("Discount"),
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(0), currency_validator()],
         default=0
     )
     notes = models.TextField(_("Notes"), blank=True)
@@ -583,6 +750,48 @@ class Order(BaseModel):
     def total(self):
         """Calculate the total order cost including shipping, tax, and discount."""
         return self.subtotal + self.shipping_cost + self.tax - self.discount
+    
+    def clean(self):
+        """
+        Validate order data based on status and dates.
+        """
+        from django.core.exceptions import ValidationError
+        
+        # If status is 'placed', order_date is required and should not be in the future
+        if self.status == 'placed' and not self.order_date:
+            raise ValidationError({
+                "order_date": _("Order date is required when status is 'placed'.")
+            })
+        
+        # If order_date is provided, it should not be in the future
+        if self.order_date:
+            no_future_date_validator(self.order_date)
+            
+        # If actual_delivery_date is provided, it should not be in the future
+        if self.actual_delivery_date:
+            no_future_date_validator(self.actual_delivery_date)
+            
+        # If order_date and expected_delivery_date are both provided,
+        # ensure expected_delivery_date is not before order_date
+        if self.order_date and self.expected_delivery_date:
+            if self.expected_delivery_date < self.order_date:
+                raise ValidationError({
+                    "expected_delivery_date": _("Expected delivery date cannot be before the order date.")
+                })
+                
+        # If order_date and actual_delivery_date are both provided,
+        # ensure actual_delivery_date is not before order_date
+        if self.order_date and self.actual_delivery_date:
+            if self.actual_delivery_date < self.order_date:
+                raise ValidationError({
+                    "actual_delivery_date": _("Actual delivery date cannot be before the order date.")
+                })
+                
+        # If status is 'received', actual_delivery_date is required
+        if self.status == 'received' and not self.actual_delivery_date:
+            raise ValidationError({
+                "actual_delivery_date": _("Actual delivery date is required when status is 'received'.")
+            })
 
 
 class OrderItem(BaseModel):
@@ -612,7 +821,7 @@ class OrderItem(BaseModel):
         _("Unit Price"),
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0), currency_validator()]
     )
     received_quantity = models.DecimalField(
         _("Received Quantity"),

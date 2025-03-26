@@ -14,6 +14,88 @@ from rest_framework import serializers
 from typing import Dict, List, Any, Optional, Union
 
 
+# Examples for validator-related responses
+
+def validator_examples() -> Dict[str, OpenApiExample]:
+    """
+    Examples of validation errors for the API documentation.
+    """
+    return {
+        "future_date_error": OpenApiExample(
+            name="future_date_error",
+            summary="Future date validation error",
+            description="Error returned when a date field is set to a future date.",
+            value={
+                "order_date": [
+                    "2024-12-31 is in the future. This field cannot accept future dates."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+        "invalid_email_error": OpenApiExample(
+            name="invalid_email_error",
+            summary="Invalid email validation error",
+            description="Error returned when an email is not in a valid format.",
+            value={
+                "email": [
+                    "invalid-email is not a valid email address."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+        "invalid_phone_error": OpenApiExample(
+            name="invalid_phone_error",
+            summary="Invalid phone number validation error",
+            description="Error returned when a phone number is not in a valid format.",
+            value={
+                "phone": [
+                    "12345 is not a valid phone number. Must have between 7 and 15 digits."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+        "negative_currency_error": OpenApiExample(
+            name="negative_currency_error",
+            summary="Negative currency validation error",
+            description="Error returned when a currency value is negative.",
+            value={
+                "unit_price": [
+                    "Value cannot be less than 0."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+        "transaction_quantity_error": OpenApiExample(
+            name="transaction_quantity_error",
+            summary="Transaction quantity validation error",
+            description="Error returned when a transaction quantity has the wrong sign for the transaction type.",
+            value={
+                "quantity": [
+                    "Quantity must be negative for sold transactions."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+        "date_sequence_error": OpenApiExample(
+            name="date_sequence_error",
+            summary="Date sequence validation error",
+            description="Error returned when dates are out of sequence.",
+            value={
+                "expected_delivery_date": [
+                    "Expected delivery date cannot be before the order date."
+                ]
+            },
+            request_only=False,
+            response_only=True,
+        ),
+    }
+
+
 def common_schema_parameters() -> List[OpenApiParameter]:
     """
     Common query parameters used across multiple endpoints.

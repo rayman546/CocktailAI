@@ -398,7 +398,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = self.get_object()
         items = InventoryItem.objects.filter(location=location)
         
-        return paginate_queryset(self, items, InventoryItemListSerializer)
+        return paginate_queryset(self, items, InventoryItemSerializer)
 
     @extend_schema_with_auth(
         summary="Get inventory counts for a location",
@@ -436,7 +436,7 @@ class LocationViewSet(viewsets.ModelViewSet):
             inventory_item__location=location
         ).order_by('-created_at')
         
-        return paginate_queryset(self, transactions, InventoryTransactionListSerializer)
+        return paginate_queryset(self, transactions, InventoryTransactionSerializer)
 
 
 @extend_schema_view(
@@ -533,11 +533,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
     filterset_class = InventoryItemFilter
     search_fields = ['product__name', 'location__name']
     ordering_fields = ['product__name', 'location__name', 'quantity', 'created_at', 'updated_at']
-    
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return InventoryItemDetailSerializer
-        return InventoryItemListSerializer
+    serializer_class = InventoryItemSerializer
 
     @extend_schema_with_auth(
         summary="Get transactions for an inventory item",
@@ -555,7 +551,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         inventory_item = self.get_object()
         transactions = inventory_item.transactions.all().order_by('-created_at')
         
-        return paginate_queryset(self, transactions, InventoryTransactionListSerializer)
+        return paginate_queryset(self, transactions, InventoryTransactionSerializer)
 
 @extend_schema_view(
     list=extend_schema_with_auth(
@@ -604,11 +600,7 @@ class InventoryTransactionViewSet(viewsets.ModelViewSet):
     search_fields = ['inventory_item__product__name', 'notes']
     ordering_fields = ['created_at', 'quantity', 'transaction_type']
     ordering = ['-created_at']
-    
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return InventoryTransactionDetailSerializer
-        return InventoryTransactionListSerializer
+    serializer_class = InventoryTransactionSerializer
     
     def perform_create(self, serializer):
         serializer.save(performed_by=self.request.user)
@@ -732,11 +724,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     search_fields = ['supplier__name', 'notes', 'reference_number']
     ordering_fields = ['created_at', 'order_date', 'status', 'total_cost']
     ordering = ['-created_at']
-    
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return OrderDetailSerializer
-        return OrderSerializer
+    serializer_class = OrderSerializer
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -765,7 +753,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.order_date = timezone.now().date()
         order.save()
         
-        return Response(OrderDetailSerializer(order).data)
+        return Response(OrderSerializer(order).data)
 
     @extend_schema_with_auth(
         summary="Mark order as received",
@@ -814,7 +802,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.received_date = timezone.now().date()
             order.save()
         
-        return Response(OrderDetailSerializer(order).data)
+        return Response(OrderSerializer(order).data)
 
 # Viewset classes will be added here as models and serializers are created
 # Example:
@@ -903,7 +891,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         product = self.get_object()
         items = InventoryItem.objects.filter(product=product)
         
-        return paginate_queryset(self, items, InventoryItemListSerializer)
+        return paginate_queryset(self, items, InventoryItemSerializer)
 
     @extend_schema_with_auth(
         summary="Get transactions for a product",
@@ -923,7 +911,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             inventory_item__product=product
         ).order_by('-created_at')
         
-        return paginate_queryset(self, transactions, InventoryTransactionListSerializer)
+        return paginate_queryset(self, transactions, InventoryTransactionSerializer)
 
 class APIDocs(viewsets.ViewSet):
     """

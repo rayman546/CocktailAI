@@ -274,29 +274,20 @@ ProductCreateUpdateSerializer = ProductSerializer
 
 
 # InventoryItem serializers
-class InventoryItemListSerializer(serializers.ModelSerializer):
+class InventoryItemSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing InventoryItem instances.
+    Base serializer for InventoryItem instances.
+    Handles all inventory item operations with conditional field inclusion
+    based on context or action.
     """
+    # Fields for list view
     product_name = serializers.ReadOnlyField(source='product.name')
     location_name = serializers.ReadOnlyField(source='location.name')
     value = serializers.ReadOnlyField()
     
-    class Meta:
-        model = InventoryItem
-        fields = [
-            'id', 'product', 'product_name', 'location', 'location_name',
-            'quantity', 'value', 'is_active', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['created_at', 'updated_at']
-
-
-class InventoryItemDetailSerializer(serializers.ModelSerializer):
-    """
-    Serializer for detailed InventoryItem information.
-    """
-    product = ProductListSerializer(read_only=True)
-    location = LocationSerializer(read_only=True)
+    # Fields for detail view
+    product = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
     product_id = serializers.PrimaryKeyRelatedField(
         source='product',
         queryset=Product.objects.all(),
@@ -307,27 +298,56 @@ class InventoryItemDetailSerializer(serializers.ModelSerializer):
         queryset=Location.objects.all(),
         write_only=True
     )
-    value = serializers.ReadOnlyField()
     
     class Meta:
         model = InventoryItem
         fields = [
-            'id', 'product', 'product_id', 'location', 'location_id',
+            'id', 'product', 'product_id', 'product_name', 
+            'location', 'location_id', 'location_name',
             'quantity', 'value', 'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
 
-
-class InventoryItemCreateUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for creating and updating InventoryItem instances.
-    """
-    class Meta:
-        model = InventoryItem
-        fields = [
-            'id', 'product', 'location', 'quantity', 'is_active'
-        ]
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer with dynamic field sets based on context.
+        """
+        super().__init__(*args, **kwargs)
         
+        # Get the request context to determine which fields to include
+        request = self.context.get('request')
+        if not request:
+            return
+            
+        # For create/update actions, use simplified representation
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            self.fields.pop('product', None)
+            self.fields.pop('location', None)
+            self.fields.pop('product_name', None)
+            self.fields.pop('location_name', None)
+            self.fields.pop('value', None)
+        else:  # For GET requests
+            self.fields.pop('product_id', None)
+            self.fields.pop('location_id', None)
+
+    def get_product(self, obj):
+        """
+        Return the full ProductSerializer representation for detail view.
+        """
+        # Only return detailed product in detail view
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return ProductSerializer(obj.product).data
+        return obj.product_id
+        
+    def get_location(self, obj):
+        """
+        Return the full LocationSerializer representation for detail view.
+        """
+        # Only return detailed location in detail view
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return LocationSerializer(obj.location).data
+        return obj.location_id
+    
     def validate(self, data):
         """
         Validate that the product-location combination is unique.
@@ -354,61 +374,122 @@ class InventoryItemCreateUpdateSerializer(serializers.ModelSerializer):
                         {"non_field_errors": "An inventory item for this product and location already exists."}
                     )
         
-        return data 
+        return data
+
+
+# Keeping these aliases for backward compatibility during transition
+InventoryItemListSerializer = InventoryItemSerializer
+InventoryItemDetailSerializer = InventoryItemSerializer
+InventoryItemCreateUpdateSerializer = InventoryItemSerializer
+
 
 # InventoryTransaction serializers
-class InventoryTransactionListSerializer(serializers.ModelSerializer):
+class InventoryTransactionSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing InventoryTransaction instances.
+    Base serializer for InventoryTransaction instances.
+    Handles all inventory transaction operations with conditional field inclusion
+    based on context or action.
     """
+    # Fields for list view
     product_name = serializers.ReadOnlyField(source='product.name')
     location_name = serializers.ReadOnlyField(source='location.name')
+    destination_location_name = serializers.ReadOnlyField(source='destination_location.name')
     transaction_type_display = serializers.ReadOnlyField(source='get_transaction_type_display')
     performed_by_username = serializers.ReadOnlyField(source='performed_by.username')
     total_value = serializers.ReadOnlyField()
     
-    class Meta:
-        model = InventoryTransaction
-        fields = [
-            'id', 'transaction_id', 'transaction_type', 'transaction_type_display',
-            'product', 'product_name', 'location', 'location_name',
-            'quantity', 'unit_price', 'reference', 'performed_by', 
-            'performed_by_username', 'total_value', 'created_at'
-        ]
-        read_only_fields = ['transaction_id', 'created_at']
-
-
-class InventoryTransactionDetailSerializer(serializers.ModelSerializer):
-    """
-    Serializer for detailed InventoryTransaction information.
-    """
-    product = ProductListSerializer(read_only=True)
-    location = LocationSerializer(read_only=True)
-    performed_by = UserSerializer(read_only=True)
-    transaction_type_display = serializers.ReadOnlyField(source='get_transaction_type_display')
-    total_value = serializers.ReadOnlyField()
+    # Fields for detail view
+    product = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    destination_location = serializers.SerializerMethodField()
+    performed_by = serializers.SerializerMethodField()
+    
+    # Write-only fields for related objects
+    product_id = serializers.PrimaryKeyRelatedField(
+        source='product',
+        queryset=Product.objects.all(),
+        write_only=True
+    )
+    location_id = serializers.PrimaryKeyRelatedField(
+        source='location',
+        queryset=Location.objects.all(),
+        write_only=True
+    )
+    destination_location_id = serializers.PrimaryKeyRelatedField(
+        source='destination_location',
+        queryset=Location.objects.all(),
+        write_only=True,
+        required=False
+    )
     
     class Meta:
         model = InventoryTransaction
         fields = [
             'id', 'transaction_id', 'transaction_type', 'transaction_type_display',
-            'product', 'location', 'quantity', 'unit_price', 
-            'reference', 'notes', 'performed_by', 'total_value',
+            'product', 'product_id', 'product_name', 
+            'location', 'location_id', 'location_name',
+            'destination_location', 'destination_location_id', 'destination_location_name',
+            'quantity', 'unit_price', 'reference', 'notes', 
+            'performed_by', 'performed_by_username', 'total_value',
             'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = ['transaction_id', 'created_at', 'updated_at']
 
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer with dynamic field sets based on context.
+        """
+        super().__init__(*args, **kwargs)
+        
+        # Get the request context to determine which fields to include
+        request = self.context.get('request')
+        if not request:
+            return
+            
+        # For list action, exclude detailed fields
+        if self.context.get('view') and self.context['view'].action == 'list':
+            self.fields.pop('notes', None)
+            
+        # For create/update actions, use simplified representation
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            self.fields.pop('product', None)
+            self.fields.pop('location', None)
+            self.fields.pop('destination_location', None)
+            self.fields.pop('performed_by', None)
+            self.fields.pop('product_name', None)
+            self.fields.pop('location_name', None)
+            self.fields.pop('destination_location_name', None)
+            self.fields.pop('transaction_type_display', None)
+            self.fields.pop('performed_by_username', None)
+            self.fields.pop('total_value', None)
+        else:  # For GET requests
+            self.fields.pop('product_id', None)
+            self.fields.pop('location_id', None)
+            self.fields.pop('destination_location_id', None)
 
-class InventoryTransactionCreateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for creating InventoryTransaction instances.
-    """
-    class Meta:
-        model = InventoryTransaction
-        fields = [
-            'transaction_type', 'product', 'location', 
-            'quantity', 'unit_price', 'reference', 'notes', 'performed_by'
-        ]
+    def get_product(self, obj):
+        """Return the full ProductSerializer representation for detail view."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return ProductSerializer(obj.product).data
+        return obj.product_id
+        
+    def get_location(self, obj):
+        """Return the full LocationSerializer representation for detail view."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return LocationSerializer(obj.location).data
+        return obj.location_id
+        
+    def get_destination_location(self, obj):
+        """Return the full LocationSerializer representation for the destination location."""
+        if obj.destination_location and self.context.get('view') and self.context['view'].action == 'retrieve':
+            return LocationSerializer(obj.destination_location).data
+        return None
+    
+    def get_performed_by(self, obj):
+        """Return the full UserSerializer representation for performed_by."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return UserSerializer(obj.performed_by).data
+        return obj.performed_by_id
         
     def validate(self, data):
         """
@@ -416,9 +497,11 @@ class InventoryTransactionCreateSerializer(serializers.ModelSerializer):
         
         - For 'sold' and 'transferred' transactions: quantity must be negative
         - For 'received' and 'adjustment' transactions: quantity must be positive
+        - For 'transferred' transactions: destination_location must be provided
         """
         transaction_type = data.get('transaction_type')
         quantity = data.get('quantity')
+        destination_location = data.get('destination_location')
         
         # For 'sold' and 'transferred' transactions, quantity should be negative
         if transaction_type in ['sold', 'transferred'] and quantity >= 0:
@@ -432,18 +515,28 @@ class InventoryTransactionCreateSerializer(serializers.ModelSerializer):
                 "quantity": "Quantity must be positive for received transactions."
             })
             
-        # For 'adjustment' transactions, any value is allowed but warn about negative values
-        elif transaction_type == 'adjustment' and quantity < 0:
-            # This is just a warning; could be implemented with non_field_errors or custom validation
-            pass
-            
-        # Validate transfer operations (if implemented)
+        # Validate transfer operations
         if transaction_type == 'transferred':
-            # Additional validation for transfers could be added here
-            # For example, ensure a destination location is specified for transfers
-            pass
+            # Ensure destination_location is provided for transfers
+            if not destination_location:
+                raise serializers.ValidationError({
+                    "destination_location_id": "Destination location is required for transfers."
+                })
+            
+            # Ensure destination_location is not the same as source location
+            location = data.get('location')
+            if destination_location == location:
+                raise serializers.ValidationError({
+                    "destination_location_id": "Destination location must be different from source location."
+                })
             
         return data
+
+
+# Keeping these aliases for backward compatibility during transition
+InventoryTransactionListSerializer = InventoryTransactionSerializer
+InventoryTransactionDetailSerializer = InventoryTransactionSerializer
+InventoryTransactionCreateSerializer = InventoryTransactionSerializer
 
 
 # InventoryCount serializers
@@ -611,54 +704,60 @@ class InventoryCountItemUpdateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data) 
 
 # Order serializers
-class OrderItemListSerializer(serializers.ModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing OrderItem instances.
+    Base serializer for OrderItem instances.
+    Handles all order item operations with conditional field inclusion
+    based on context or action.
     """
+    # Fields for list view
     product_name = serializers.ReadOnlyField(source='product.name')
     total_price = serializers.ReadOnlyField()
     is_fully_received = serializers.ReadOnlyField()
     receiving_status = serializers.ReadOnlyField()
     
-    class Meta:
-        model = OrderItem
-        fields = [
-            'id', 'product', 'product_name', 'quantity', 'unit_price',
-            'received_quantity', 'total_price', 'is_fully_received',
-            'receiving_status', 'is_active'
-        ]
-
-
-class OrderItemDetailSerializer(serializers.ModelSerializer):
-    """
-    Serializer for detailed OrderItem information.
-    """
-    product = ProductListSerializer(read_only=True)
-    total_price = serializers.ReadOnlyField()
-    is_fully_received = serializers.ReadOnlyField()
-    receiving_status = serializers.ReadOnlyField()
+    # Fields for detail view
+    product = serializers.SerializerMethodField()
     
     class Meta:
         model = OrderItem
         fields = [
-            'id', 'product', 'quantity', 'unit_price', 'received_quantity',
-            'notes', 'total_price', 'is_fully_received', 'receiving_status',
-            'is_active', 'created_at', 'updated_at'
+            'id', 'product', 'product_name', 'quantity', 'unit_price',
+            'received_quantity', 'notes', 'total_price', 'is_fully_received',
+            'receiving_status', 'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
-
-
-class OrderItemCreateUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for creating and updating OrderItem instances.
-    """
-    class Meta:
-        model = OrderItem
-        fields = [
-            'product', 'quantity', 'unit_price', 'received_quantity',
-            'notes', 'is_active'
-        ]
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer with dynamic field sets based on context.
+        """
+        super().__init__(*args, **kwargs)
         
+        # Get the request context to determine which fields to include
+        request = self.context.get('request')
+        if not request:
+            return
+            
+        # For list action, exclude detailed fields
+        if self.context.get('view') and self.context['view'].action == 'list':
+            self.fields.pop('notes', None)
+            self.fields.pop('created_at', None)
+            self.fields.pop('updated_at', None)
+            
+        # For create/update actions, use simplified representation
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            self.fields.pop('product_name', None)
+            self.fields.pop('total_price', None)
+            self.fields.pop('is_fully_received', None)
+            self.fields.pop('receiving_status', None)
+    
+    def get_product(self, obj):
+        """Return the full ProductSerializer representation for detail view."""
+        if self.context.get('view') and self.context['view'].action in ['retrieve', 'detail']:
+            return ProductSerializer(obj.product).data
+        return obj.product_id
+    
     def validate(self, data):
         """
         Validate that the order-product combination is unique.
@@ -693,10 +792,13 @@ class OrderItemCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
 
-class OrderListSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     """
-    Serializer for listing Order instances.
+    Base serializer for Order instances.
+    Handles all order operations with conditional field inclusion
+    based on context or action.
     """
+    # Fields for list view
     supplier_name = serializers.ReadOnlyField(source='supplier.name')
     status_display = serializers.ReadOnlyField(source='get_status_display')
     created_by_username = serializers.ReadOnlyField(source='created_by.username')
@@ -705,120 +807,103 @@ class OrderListSerializer(serializers.ModelSerializer):
     total = serializers.ReadOnlyField()
     item_count = serializers.SerializerMethodField()
     
+    # Fields for detail view
+    supplier = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
+    items = serializers.SerializerMethodField()
+    
+    # Write-only fields
+    supplier_id = serializers.PrimaryKeyRelatedField(
+        source='supplier',
+        queryset=Supplier.objects.all(),
+        write_only=True
+    )
+    items_data = OrderItemSerializer(many=True, required=False, write_only=True)
+    
     class Meta:
         model = Order
         fields = [
-            'id', 'order_number', 'supplier', 'supplier_name',
+            'id', 'order_number', 'supplier', 'supplier_id', 'supplier_name',
             'status', 'status_display', 'order_date', 'expected_delivery_date',
-            'actual_delivery_date', 'created_by', 'created_by_username',
-            'updated_by', 'updated_by_username', 'subtotal', 'total',
-            'item_count', 'created_at'
+            'actual_delivery_date', 'shipping_cost', 'tax', 'discount', 'notes',
+            'created_by', 'created_by_username', 'updated_by', 'updated_by_username',
+            'subtotal', 'total', 'item_count', 'items', 'items_data',
+            'is_active', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['order_number', 'created_at']
+        read_only_fields = ['order_number', 'created_at', 'updated_at']
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the serializer with dynamic field sets based on context.
+        """
+        super().__init__(*args, **kwargs)
         
+        # Get the request context to determine which fields to include
+        request = self.context.get('request')
+        if not request:
+            return
+            
+        # For list action, exclude detailed fields
+        if self.context.get('view') and self.context['view'].action == 'list':
+            self.fields.pop('notes', None)
+            self.fields.pop('shipping_cost', None)
+            self.fields.pop('tax', None)
+            self.fields.pop('discount', None)
+            self.fields.pop('items', None)
+            
+        # For create/update actions, use simplified representation
+        if request.method in ['POST', 'PUT', 'PATCH']:
+            self.fields.pop('supplier', None)
+            self.fields.pop('supplier_name', None)
+            self.fields.pop('status_display', None)
+            self.fields.pop('created_by', None)
+            self.fields.pop('created_by_username', None)
+            self.fields.pop('updated_by', None)
+            self.fields.pop('updated_by_username', None)
+            self.fields.pop('subtotal', None)
+            self.fields.pop('total', None)
+            self.fields.pop('item_count', None)
+            self.fields.pop('items', None)
+        else:  # For GET requests
+            self.fields.pop('supplier_id', None)
+            self.fields.pop('items_data', None)
+    
+    def get_supplier(self, obj):
+        """Return the full SupplierSerializer representation for detail view."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return SupplierSerializer(obj.supplier).data
+        return obj.supplier_id
+    
+    def get_created_by(self, obj):
+        """Return the full UserSerializer representation for created_by."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return UserSerializer(obj.created_by).data if obj.created_by else None
+        return obj.created_by_id if obj.created_by else None
+    
+    def get_updated_by(self, obj):
+        """Return the full UserSerializer representation for updated_by."""
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return UserSerializer(obj.updated_by).data if obj.updated_by else None
+        return obj.updated_by_id if obj.updated_by else None
+    
     def get_updated_by_username(self, obj):
         """Get the username of the user who updated this order."""
         if obj.updated_by:
             return obj.updated_by.username
         return None
-        
+    
     def get_item_count(self, obj):
         """Get the number of items in this order."""
         return obj.items.count()
-
-
-class OrderDetailSerializer(serializers.ModelSerializer):
-    """
-    Serializer for detailed Order information.
-    """
-    supplier = SupplierSerializer(read_only=True)
-    created_by = UserSerializer(read_only=True)
-    updated_by = UserSerializer(read_only=True)
-    status_display = serializers.ReadOnlyField(source='get_status_display')
-    items = OrderItemListSerializer(many=True, read_only=True)
-    subtotal = serializers.ReadOnlyField()
-    total = serializers.ReadOnlyField()
     
-    class Meta:
-        model = Order
-        fields = [
-            'id', 'order_number', 'supplier', 'status', 'status_display',
-            'order_date', 'expected_delivery_date', 'actual_delivery_date',
-            'shipping_cost', 'tax', 'discount', 'notes', 'subtotal', 'total',
-            'created_by', 'updated_by', 'items', 'is_active',
-            'created_at', 'updated_at'
-        ]
-        read_only_fields = ['order_number', 'created_at', 'updated_at']
-
-
-class OrderCreateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for creating Order instances.
-    """
-    items = OrderItemCreateUpdateSerializer(many=True, required=False)
+    def get_items(self, obj):
+        """Return OrderItemSerializer instances for all items in this order."""
+        # Only return items in detail view
+        if self.context.get('view') and self.context['view'].action == 'retrieve':
+            return OrderItemSerializer(obj.items.all(), many=True, context=self.context).data
+        return None
     
-    class Meta:
-        model = Order
-        fields = [
-            'supplier', 'status', 'order_date', 'expected_delivery_date',
-            'shipping_cost', 'tax', 'discount', 'notes', 'created_by',
-            'updated_by', 'items', 'is_active'
-        ]
-        
-    def validate(self, data):
-        """
-        Validate order data based on status.
-        """
-        status = data.get('status')
-        order_date = data.get('order_date')
-        
-        # If status is 'placed', order_date is required
-        if status == 'placed' and not order_date:
-            raise serializers.ValidationError(
-                {"order_date": "Order date is required when status is 'placed'."}
-            )
-            
-        # If status is 'received', actual_delivery_date is required
-        if status == 'received' and not data.get('actual_delivery_date'):
-            raise serializers.ValidationError(
-                {"actual_delivery_date": "Actual delivery date is required when status is 'received'."}
-            )
-            
-        return data
-        
-    def create(self, validated_data):
-        """
-        Create and return a new Order instance with OrderItems.
-        """
-        items_data = validated_data.pop('items', [])
-        
-        # Generate an order number if not provided
-        if not validated_data.get('order_number'):
-            import uuid
-            validated_data['order_number'] = f"ORD-{uuid.uuid4().hex[:8].upper()}"
-        
-        # Create the order
-        order = Order.objects.create(**validated_data)
-        
-        # Create order items
-        for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
-            
-        return order
-
-
-class OrderUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for updating Order instances.
-    """
-    class Meta:
-        model = Order
-        fields = [
-            'supplier', 'status', 'order_date', 'expected_delivery_date',
-            'actual_delivery_date', 'shipping_cost', 'tax', 'discount',
-            'notes', 'updated_by', 'is_active'
-        ]
-        
     def validate(self, data):
         """
         Validate order data based on status.
@@ -840,4 +925,56 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
                 {"actual_delivery_date": "Actual delivery date is required when status is 'received'."}
             )
             
-        return data 
+        return data
+    
+    def create(self, validated_data):
+        """
+        Create and return a new Order instance with OrderItems.
+        """
+        items_data = validated_data.pop('items_data', [])
+        
+        # Generate an order number if not provided
+        if not validated_data.get('order_number'):
+            import uuid
+            validated_data['order_number'] = f"ORD-{uuid.uuid4().hex[:8].upper()}"
+        
+        # Create the order
+        order = Order.objects.create(**validated_data)
+        
+        # Create order items
+        for item_data in items_data:
+            OrderItem.objects.create(order=order, **item_data)
+            
+        return order
+    
+    def update(self, instance, validated_data):
+        """
+        Update and return an existing Order instance with OrderItems.
+        """
+        items_data = validated_data.pop('items_data', None)
+        
+        # Update the order fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # If items_data is provided, update or create order items
+        if items_data is not None:
+            # Optional: Update or create order items
+            # This is a simplified approach; in a real application,
+            # you might want to handle updates to existing items and deletions
+            instance.items.all().delete()
+            for item_data in items_data:
+                OrderItem.objects.create(order=instance, **item_data)
+        
+        return instance
+
+
+# Keeping these aliases for backward compatibility during transition
+OrderItemListSerializer = OrderItemSerializer
+OrderItemDetailSerializer = OrderItemSerializer
+OrderItemCreateUpdateSerializer = OrderItemSerializer
+OrderListSerializer = OrderSerializer
+OrderDetailSerializer = OrderSerializer
+OrderCreateSerializer = OrderSerializer
+OrderUpdateSerializer = OrderSerializer 
